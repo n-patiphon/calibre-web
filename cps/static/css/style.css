@@ -208,7 +208,7 @@ table .bg-dark-danger a { color: #fff; }
 .container-fluid .author .author-hidden-divider { display: none; }
 
 .navbar-brand {
-  font-family: 'Grand Hotel', cursive;
+  font-family: Georgia, "Times New Roman", Times, serif;
   font-size: 35px;
   color: #00664B !important;
 }
