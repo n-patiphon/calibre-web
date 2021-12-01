@@ -70,6 +70,13 @@ except ImportError as e:
     log.debug('Cannot import fb2, extracting fb2 metadata will not work: %s', e)
     use_fb2_meta = False
 
+# Improve this to check if scholarly is available in a global way, like other pythonic libraries
+try:
+    from scholarly import scholarly
+    have_scholar = True
+except ImportError:
+    have_scholar = False
+
 
 def process(tmp_file_path, original_file_name, original_file_extension, rarExecutable):
     meta = None
@@ -230,13 +237,25 @@ def pdf_meta(tmp_file_path, original_file_name, original_file_extension):
         if author == '':
             author = ' & '.join(split_authors([doc_info.author])) if doc_info.author else u'Unknown'
         if title == '':
-            title = doc_info.title if doc_info.title else original_file_name
+            title = doc_info.title if doc_info.title else original_file_name.replace('_', ' ')
         if subject == '':
             subject = doc_info.subject
         if tags == '' and '/Keywords' in doc_info:
             tags = doc_info['/Keywords']
     else:
         title = original_file_name
+
+    # Retrieve updated meta data from Google Scholar
+    try:
+        search_query = scholarly.search_pubs(title)
+        pub = next(search_query)
+        scholarly.pprint(pub)
+        title=pub['bib']['title']
+        author=' & '.join(pub['bib']['author'])
+        subject=pub['bib']['abstract']
+        publisher=pub['bib']['venue']
+    except StopIteration:
+        pass
 
     return BookMeta(
         file_path=tmp_file_path,
